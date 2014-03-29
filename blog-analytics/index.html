@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>博客统计</title>
+</head>
+<body>
+
+</body>
+<script src="js/d3.js" charset="utf-8"></script>
+<script src="http://code.jquery.com/jquery-2.1.0.js" charset="utf-8"></script>
+<script type="text/javascript">
+    var visits_by_month = [
+        {
+            "month":1,
+            "visits":1081
+        },
+        {
+            "month":2,
+            "visits":195
+        },
+        {
+            "month":3,
+            "visits":461
+        },
+        {
+            "month":4,
+            "visits":461
+        },
+        {
+            "month":5,
+            "visits":556
+        },
+        {
+            "month":6,
+            "visits":526
+        },
+        {
+            "month":7,
+            "visits":645
+        },
+        {
+            "month":8,
+            "visits":562
+        },
+        {
+            "month":9,
+            "visits":503
+        },
+        {
+            "month":10,
+            "visits":592
+        },
+        {
+            "month":11,
+            "visits":764
+        },
+        {
+            "month":12,
+            "visits":819
+        }
+    ];
+    var w = 800;
+    var h = 200;
+
+    $(document).ready(function(){
+        var svg = d3.select("body").append("svg").attr({
+            "width": w,
+            "height":h
+        });
+        svg.selectAll("rect")
+                .data(visits_by_month)
+                .enter()
+                .append("rect")
+                .attr({
+                    "x": function(d){
+                        return (d.month-1)*20
+                    },
+                    "y": function(d){
+                        return h- Math.round(d.visits/10)
+                    },
+                    "width": 15})
+                .attr("height", function(d){
+                        return Math.round(d.visits/10)
+                })
+
+    });
+</script>
+</html>
