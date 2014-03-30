@@ -73,18 +73,35 @@
                 .append("rect")
                 .attr({
                     x: function(d){
-                        return (d.month-1)*20
+                        return (d.month-1)*25;
                     },
                     y: function(d){
-                        return h- Math.round(d.visits/10)
+                        return h- Math.round(d.visits/10);
                     },
-                    width: 15,
+                    width: 20,
                     height: function(d){
-                        return Math.round(d.visits/10)
+                        return Math.round(d.visits/10);
                     },
                     fill: "blue"
                 });
-
+        svg.selectAll("text")
+                .data(visits_by_month)
+                .enter()
+                .append("text")
+                .text(function(d){
+                    return d.visits;
+                })
+                .attr({
+                    x: function(d, i){
+                        return i*25+10;
+                    },
+                    y: function(d, i){
+                        return h- Math.round(d.visits/10)-5;
+                    },
+                    fill: "red",
+                    "font-size": "5px",
+                    "text-anchor": "middle"
+                });
     });
 </script>
 </html>
