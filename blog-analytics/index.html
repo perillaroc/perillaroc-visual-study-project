@@ -7,7 +7,7 @@
 
 </body>
 <script src="js/d3.js" charset="utf-8"></script>
-<script src="http://code.jquery.com/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="js/jquery-2.1.0.js" charset="utf-8"></script>
 <script type="text/javascript">
     var visits_by_month = [
         {
@@ -72,16 +72,17 @@
                 .enter()
                 .append("rect")
                 .attr({
-                    "x": function(d){
+                    x: function(d){
                         return (d.month-1)*20
                     },
-                    "y": function(d){
+                    y: function(d){
                         return h- Math.round(d.visits/10)
                     },
-                    "width": 15})
-                .attr("height", function(d){
+                    width: 15,
+                    height: function(d){
                         return Math.round(d.visits/10)
-                })
+                    }
+                });
 
     });
 </script>
