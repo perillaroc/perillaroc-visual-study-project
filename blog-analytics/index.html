@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>博客统计</title>
+    <meta charset="utf-8">
 </head>
 <body>
 
@@ -59,8 +60,21 @@
             "visits":819
         }
     ];
-    var w = 800;
+    var w = 400;
     var h = 200;
+    var padding = 10;
+
+    var x_scale = d3.scale.linear()
+            .domain([1,13])
+            .range([0,w]);
+
+    var y_scale = d3.scale.linear()
+            .domain([0,
+            d3.max(visits_by_month,function(d){
+                return d.visits;
+            })])
+            .range([0,h-2*padding]);
+    var width = Math.round(x_scale(2)-0-padding);
 
     $(document).ready(function(){
         var svg = d3.select("body").append("svg").attr({
@@ -73,14 +87,14 @@
                 .append("rect")
                 .attr({
                     x: function(d){
-                        return (d.month-1)*25;
+                        return Math.round(x_scale(d.month));
                     },
                     y: function(d){
-                        return h- Math.round(d.visits/10);
+                        return Math.round(h- y_scale(d.visits));
                     },
-                    width: 20,
+                    width: width,
                     height: function(d){
-                        return Math.round(d.visits/10);
+                        return Math.round(y_scale(d.visits));
                     },
                     fill: "blue"
                 });
@@ -92,14 +106,14 @@
                     return d.visits;
                 })
                 .attr({
-                    x: function(d, i){
-                        return i*25+10;
+                    x: function(d){
+                        return Math.round(x_scale(d.month))+width/2;
                     },
-                    y: function(d, i){
-                        return h- Math.round(d.visits/10)-5;
+                    y: function(d){
+                        return Math.round(h- y_scale(d.visits))-padding;
                     },
                     fill: "red",
-                    "font-size": "5px",
+                    "font-size":"10pt",
                     "text-anchor": "middle"
                 });
     });
