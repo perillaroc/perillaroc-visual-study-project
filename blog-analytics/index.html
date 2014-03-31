@@ -22,15 +22,15 @@
 
     var x_scale = d3.scale.linear()
             .domain([1,13])
-            .range([0,w]);
+            .rangeRound([0,w]);
 
     var y_scale = d3.scale.linear()
             .domain([0,
             d3.max(visits_by_month,function(d){
                 return d.visits;
             })])
-            .range([0,h-2*padding]);
-    var width = Math.round(x_scale(2)-0-padding);
+            .rangeRound([0,h-2*padding]);
+    var width = x_scale(2)-0-padding;
 
     $(document).ready(function(){
         var svg = d3.select("body").append("svg").attr({
@@ -43,14 +43,14 @@
                 .append("rect")
                 .attr({
                     x: function(d){
-                        return Math.round(x_scale(d.month));
+                        return x_scale(d.month);
                     },
                     y: function(d){
-                        return Math.round(h- y_scale(d.visits));
+                        return h- y_scale(d.visits);
                     },
                     width: width,
                     height: function(d){
-                        return Math.round(y_scale(d.visits));
+                        return y_scale(d.visits);
                     },
                     fill: "blue"
                 });
@@ -63,10 +63,10 @@
                 })
                 .attr({
                     x: function(d){
-                        return Math.round(x_scale(d.month))+width/2;
+                        return x_scale(d.month)+width/2;
                     },
                     y: function(d){
-                        return Math.round(h- y_scale(d.visits))-padding;
+                        return h- y_scale(d.visits)-padding;
                     },
                     fill: "red",
                     "font-size":"10pt",
