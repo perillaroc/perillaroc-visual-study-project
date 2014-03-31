@@ -36,9 +36,9 @@
     var left_padding = 50;
     var right_padding = 50;
 
-    var x_scale = d3.scale.linear()
-            .domain([1,12])
-            .rangeRound([left_padding,w-right_padding-padding*2]);
+    var x_scale = d3.scale.ordinal()
+            .domain(d3.range(1, visits_by_month.length+1))
+            .rangeRoundBands([left_padding,w-right_padding], 0.2);
 
     var y_scale = d3.scale.linear()
             .domain([0,
@@ -66,13 +66,13 @@
                 .enter()
                 .append("rect")
                 .attr({
-                    x: function(d){
-                        return x_scale(d.month);
+                    x: function(d,i){
+                        return x_scale(i+1);
                     },
                     y: function(d){
                         return y_scale(d.visits);
                     },
-                    width: width,
+                    width: x_scale.rangeBand(),
                     height: function(d){
                         return h - y_scale(d.visits) - padding;
                     },
@@ -86,8 +86,8 @@
                     return d.visits;
                 })
                 .attr({
-                    x: function(d){
-                        return x_scale(d.month)+width/2;
+                    x: function(d, i){
+                        return x_scale(i+1)+x_scale.rangeBand()/2;
                     },
                     y: function(d){
                         return y_scale(d.visits) - 5;
@@ -98,11 +98,11 @@
                 });
         svg.append("g")
                 .attr("class", "axis")
-                .attr("transform", "translate("+(width/2)+","+ (h-padding) +")")
+                .attr("transform", "translate(0,"+ (h-padding) +")")
                 .call(x_axis);
         svg.append("g")
                 .attr("class","axis")
-                .attr("transform","translate("+padding*2+",0)")
+                .attr("transform","translate("+left_padding+",0)")
                 .call(y_axis);
     });
 </script>
