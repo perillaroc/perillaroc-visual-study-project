@@ -118,6 +118,10 @@
                     fill: function(d){
                         return "rgb(0,"+ Math.round(d.visits/max_visits*255) +",0)";
                     }
+                })
+                .append("title")
+                .text(function(d) {
+                    return d.visits;
                 });
 
         svg.selectAll("text")
@@ -186,6 +190,10 @@
                                 fill: function(d){
                                     return "rgb(0,"+ Math.round(d.visits/max_visits*255) +",0)";
                                 }
+                            })
+                            .select("title")
+                            .text(function(d){
+                                return d.visits;
                             });
 
                     svg.selectAll("text")
