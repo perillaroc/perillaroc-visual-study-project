@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>博客统计</title>
+    <meta charset="utf-8">
+    <style type="text/css">
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .axis text {
+            font-family: sans-serif;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="button_container">
+        <button type="button" class="button_next_month">下个月</button>
+    </div>
+    <div class="plot_container"></div>
+</body>
+<script src="js/d3.js" charset="utf-8"></script>
+<script src="js/jquery-2.1.0.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+    var visits_by_day;
+    d3.csv("data/2013-visits-by-day.csv",function(error,data){
+        if(error)
+        {
+            console.log("Load csv file filed!");
+        }
+        else
+        {
+            var i;
+            for(i=0;i<data.length;i++)
+            {
+                data[i].date = new Date(data[i].date);
+                data[i].visits = parseInt(data[i].visits);
+            }
+            visits_by_day = data;
+        }
+
+        function get_certain_month_visits_each_day(month)
+        {
+            var result_records=[];
+            for(var i=0;i<visits_by_day.length;i++)
+            {
+                var current_record = visits_by_day[i];
+                if(current_record.date.getMonth() == month-1)
+                    result_records.push(current_record);
+            }
+            return result_records;
+        }
+
+
+        var current_month = 1;
+
+        var current_month_visits_by_day = get_certain_month_visits_each_day(current_month);
+
+        var w = 800;
+        var h = 400;
+        var padding = 20;
+        var left_padding = 50;
+        var right_padding = 50;
+
+        var max_visits = d3.max(current_month_visits_by_day,function(d){
+                        return d.visits;
+                    });
+        var x_scale = d3.scale.ordinal()
+                .domain(d3.range(1, current_month_visits_by_day.length+1))
+                .rangeRoundBands([left_padding,w-right_padding], 0.2);
+
+        var y_scale = d3.scale.linear()
+                .domain([0,max_visits])
+                .rangeRound([h-padding, padding]);
+        var width = x_scale(2)-x_scale(1)-padding/2;
+
+        var x_axis = d3.svg.axis()
+                .scale(x_scale)
+                .orient("bottom");
+
+        var y_axis = d3.svg.axis()
+                .scale(y_scale)
+                .orient("left");
+
+        // create
+        var svg = d3.select(".plot_container").append("svg").attr({
+            "width": w,
+            "height":h
+        });
+        svg.selectAll("rect")
+                .data(current_month_visits_by_day)
+                .enter()
+                .append("rect")
+                .attr({
+                    x: function(d,i){
+                        return x_scale(i+1);
+                    },
+                    y: function(d){
+                        return y_scale(d.visits);
+                    },
+                    width: x_scale.rangeBand(),
+                    height: function(d){
+                        return h - y_scale(d.visits) - padding;
+                    },
+                    fill: "blue"
+                });
+        svg.selectAll("text")
+                .data(current_month_visits_by_day)
+                .enter()
+                .append("text")
+                .text(function(d){
+                    return d.visits;
+                })
+                .attr({
+                    x: function(d, i){
+                        return x_scale(i+1)+x_scale.rangeBand()/2;
+                    },
+                    y: function(d){
+                        return y_scale(d.visits) - 5;
+                    },
+                    fill: "red",
+                    "font-size":"10pt",
+                    "text-anchor": "middle"
+                });
+        svg.append("g")
+                .attr("class", "axis")
+                .attr("id", "x-axis")
+                .attr("transform", "translate(0,"+ (h-padding) +")")
+                .call(x_axis);
+        svg.append("g")
+                .attr("class","axis")
+                .attr("id", "y-axis")
+                .attr("transform","translate("+left_padding+",0)")
+                .call(y_axis);
+
+        // update on click
+        d3.select("button")
+                .on("click",function(){
+                    current_month = (current_month + 1)%12 + 1;
+                    current_month_visits_by_day = get_certain_month_visits_each_day(current_month);
+
+                    y_scale = d3.scale.linear()
+                            .domain([0,
+                                d3.max(current_month_visits_by_day,function(d){
+                                    return d.visits;
+                                })])
+                            .rangeRound([h-padding, padding]);
+
+                    y_axis = d3.svg.axis()
+                            .scale(y_scale)
+                            .orient("left");
+
+                    svg.selectAll("rect")
+                            .data(current_month_visits_by_day)
+                            .transition()
+                            .duration(1000)
+                            .attr({
+                                x: function(d,i){
+                                    return x_scale(i+1);
+                                },
+                                y: function(d){
+                                    return y_scale(d.visits);
+                                },
+                                width: x_scale.rangeBand(),
+                                height: function(d){
+                                    return h - y_scale(d.visits) - padding;
+                                },
+                                fill: "blue"
+                            });
+
+                    svg.selectAll("text")
+                            .data(current_month_visits_by_day)
+                            .transition()
+                            .duration(1000)
+                            .text(function(d){
+                                return d.visits;
+                            })
+                            .attr({
+                                x: function(d, i){
+                                    return x_scale(i+1)+x_scale.rangeBand()/2;
+                                },
+                                y: function(d){
+                                    return y_scale(d.visits) - 5;
+                                },
+                                fill: "red",
+                                "font-size":"10pt",
+                                "text-anchor": "middle"
+                            });
+                    svg.select("#y-axis")
+                            .transition()
+                            .duration(1000)
+                            .call(y_axis);
+                })
+    });
+
+
+
+
+</script>
+</html>
