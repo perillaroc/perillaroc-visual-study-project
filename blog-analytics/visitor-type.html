@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>访问者类型</title>
+</head>
+<body>
+    <div class="plot_title"><h1>访问者类型</h1></div>
+    <div class="visitor_type_plot_container"></div>
+
+<script src="js/d3.js" charset="utf-8"></script>
+<script src="js/jquery-2.1.0.js" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var visitor_type = [
+            {
+                "type": "new_visitor",
+                "count": 5290
+            },
+            {
+                "type": "old_visitor",
+                "count": 1875
+            }
+        ];
+
+        //var visitor_type_array = [visitor_type.new_visitor, visitor_type.old_visitor];
+        var pie = d3.layout.pie()
+                .value(function(d){
+                    return d.count;
+                });
+
+        var w = 300;
+        var h = 300;
+
+        var outer_radius = w / 2;
+        var inner_radius = 0;
+
+        var color = d3.scale.category10();
+
+        var arc = d3.svg.arc()
+                .innerRadius(inner_radius)
+                .outerRadius(outer_radius);
+        var svg = d3.select(".visitor_type_plot_container")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+        var arcs = svg.selectAll("g.arc")
+                .data(pie(visitor_type))
+                .enter()
+                .append("g")
+                .attr("class","arc")
+                .attr("transform", "translate(" + outer_radius +","+ outer_radius +")")
+        arcs.append("path")
+                .attr("fill", function(d,i){
+                    return color(i);
+                })
+                .attr("d", arc);
+        arcs.append("text")
+                .attr("transform",function(d){
+                    return "translate(" + arc.centroid(d) + ")";
+                })
+                .attr("text-anchor", "middle")
+                .text(function(d){
+                    console.log(d);
+                    return d.data.type;
+                })
+    })
+
+</script>
+
+</body>
+</html>
