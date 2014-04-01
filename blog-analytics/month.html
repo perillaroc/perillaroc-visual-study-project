@@ -108,7 +108,9 @@
                     height: function(d){
                         return h - y_scale(d.visits) - padding;
                     },
-                    fill: "blue"
+                    fill: function(d){
+                        return "rgb(0,"+ Math.round(d.visits/max_visits*255) +",0)";
+                    }
                 });
         svg.selectAll("text")
                 .data(current_month_visits_by_day)
@@ -145,12 +147,11 @@
                     current_month = (current_month + 1)%12 + 1;
                     current_month_visits_by_day = get_certain_month_visits_each_day(current_month);
 
-                    y_scale = d3.scale.linear()
-                            .domain([0,
-                                d3.max(current_month_visits_by_day,function(d){
-                                    return d.visits;
-                                })])
-                            .rangeRound([h-padding, padding]);
+                    max_visits = d3.max(current_month_visits_by_day,function(d){
+                        return d.visits;
+                    });
+
+                    y_scale.domain([0,max_visits]);
 
                     y_axis = d3.svg.axis()
                             .scale(y_scale)
@@ -171,7 +172,9 @@
                                 height: function(d){
                                     return h - y_scale(d.visits) - padding;
                                 },
-                                fill: "blue"
+                                fill: function(d){
+                                    return "rgb(0,"+ Math.round(d.visits/max_visits*255) +",0)";
+                                }
                             });
 
                     svg.selectAll("text")
