@@ -16,6 +16,13 @@
             font-family: sans-serif;
             font-size: 11px;
         }
+
+        rect:hover {
+            -moz-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            -webkit-transition: all 0.3s;
+            fill: blue;
+        }
     </style>
 </head>
 <body>
@@ -113,23 +120,6 @@
                     }
                 });
 
-        svg.selectAll("rect")
-                .on("mouseover", function(d){
-                    d3.select(this)
-                            .attr({
-                                fill: "blue"
-                            })
-                })
-                .on("mouseout", function(d){
-                    d3.select(this)
-                            .transition()
-                            .duration(250)
-                            .attr({
-                                fill: function(d){
-                                    return "rgb(0,"+ Math.round(d.visits/max_visits*255) +",0)";
-                                }
-                            })
-                });
         svg.selectAll("text")
                 .data(current_month_visits_by_day)
                 .enter()
