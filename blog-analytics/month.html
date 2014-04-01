@@ -161,6 +161,9 @@
                             .data(current_month_visits_by_day)
                             .transition()
                             .duration(1000)
+                            .delay(function(d, i) {
+                                return i/current_month_visits_by_day.length * 1000;
+                            })
                             .attr({
                                 x: function(d,i){
                                     return x_scale(i+1);
@@ -181,6 +184,9 @@
                             .data(current_month_visits_by_day)
                             .transition()
                             .duration(1000)
+                            .delay(function(d, i) {
+                                return i/current_month_visits_by_day.length * 1000;
+                            })
                             .text(function(d){
                                 return d.visits;
                             })
