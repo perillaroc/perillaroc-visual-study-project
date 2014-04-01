@@ -7,6 +7,9 @@
     <div class="plot_title"><h1>访问者类型</h1></div>
     <div class="visitor_type_plot_container"></div>
 
+    <div class="plot_title"><h1>逐月访问者类型</h1></div>
+    <div class="visitor_type_by_month_plot_container"></div>
+
 <script src="js/d3.js" charset="utf-8"></script>
 <script src="js/jquery-2.1.0.js" charset="utf-8"></script>
 <script type="text/javascript">
@@ -64,7 +67,91 @@
                     console.log(d);
                     return d.data.type;
                 })
-    })
+    });
+
+    $(document).ready(function(){
+        var dataset = [
+            [
+                { x: 0, y: 784},
+                { x: 1, y: 148},
+                { x: 2, y: 360},
+                { x: 3, y: 316},
+                { x: 4, y: 413},
+                { x: 5, y: 370},
+                { x: 6, y: 491},
+                { x: 7, y: 374},
+                { x: 8, y: 351},
+                { x: 9, y: 462},
+                { x: 10, y : 569},
+                { x: 11, y : 652}
+            ],
+            [
+                { x: 0, y: 297 },
+                { x: 1, y: 47 },
+                { x: 2, y: 101 },
+                { x: 3, y: 145 },
+                { x: 4, y: 143 },
+                { x: 5, y: 156 },
+                { x: 6, y: 154 },
+                { x: 7, y: 188 },
+                { x: 8, y: 152 },
+                { x: 9, y: 130 },
+                { x: 10, y : 195 },
+                { x: 11, y : 167 }
+            ]
+        ];
+
+		var w = 500;
+		var h = 300;
+
+        var stack = d3.layout.stack();
+        stack(dataset);
+
+        //Set up scales
+        var x_scale = d3.scale.ordinal()
+                .domain(d3.range(dataset[0].length))
+                .rangeRoundBands([0, w], 0.05);
+
+        var y_scale = d3.scale.linear()
+                .domain([0,
+                    d3.max(dataset, function(d) {
+                        return d3.max(d, function(d) {
+                            return d.y0 + d.y;
+                        });
+                    })
+                ])
+                .range([0, h]);
+
+        var colors = d3.scale.category10();
+
+        var svg = d3.select(".visitor_type_by_month_plot_container")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+        var groups = svg.selectAll("g")
+				.data(dataset)
+				.enter()
+				.append("g")
+				.style("fill", function(d, i) {
+					return colors(i);
+				});
+
+        var rects = groups.selectAll("rect")
+                .data(function(d) { return d; })
+                .enter()
+                .append("rect")
+                .attr("x", function(d, i) {
+                    return x_scale(i);
+                })
+                .attr("y", function(d) {
+                    return h- y_scale(d.y0) - y_scale(d.y);
+                })
+                .attr("height", function(d) {
+                    return y_scale(d.y);
+                })
+                .attr("width", x_scale.rangeBand());
+    });
 
 </script>
 
