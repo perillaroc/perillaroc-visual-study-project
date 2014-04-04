@@ -4,6 +4,11 @@
     <title>访问者地域</title>
     <meta charset="utf-8">
     <link href="css/blog_analytics.css" media="all" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .legend {
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
     <div class="plot_container"></div>
@@ -23,6 +28,8 @@
         var svg = d3.select(".plot_container").append("svg")
                 .attr("width", width)
                 .attr("height", height);
+
+        // load csv data for local file.
         d3.csv("data/2013_visit_geo_by_area.csv",function(error,data){
             if(error)
             {
@@ -46,6 +53,7 @@
             var path = d3.geo.path()
                     .projection(projection);
 
+            // load map topojson
             d3.json("data/china.topo.json", function(error, d) {
                 var states = topojson.feature(d, d.objects.states);
 
@@ -107,7 +115,49 @@
                         .on("mouseout", function() {
                             d3.select("#tooltip").classed("hidden", true);
                         });
+
+                var legend_label=[];
+                for(var i=0;i<colorbrewer.YlGn['9'].length;i++)
+                {
+                    var label_object = Object();
+                    label_object.color = colorbrewer.YlGn['9'][i];
+                    var current_range = color.invertExtent(label_object.color);
+                    label_object.label = Math.round(current_range[0]) + '-' + Math.round(current_range[1]);
+
+                    legend_label.push(label_object);
+                }
+
+                var legend = svg.selectAll("g.legend")
+                        .data(legend_label)
+                        .enter()
+                        .append("g")
+                        .attr("class", "legend");
+
+                var left_padding = width - 100;
+                var legend_label_right_padding = 30;
+                var legend_height = 20;
+                var legend_width = 20;
+                var legend_label_top_padding = 4;
+
+                legend.append("svg:rect")
+                        .attr("x",left_padding)
+                        .attr("y",function(d,i){
+                            return legend_height+i*legend_height;
+                        })
+                        .attr('width',legend_width)
+                        .attr('height',legend_height)
+                        .style('fill',function(d,i){
+                            return d.color;
+                        })
+                        .style("stroke-width", "1")
+                        .style("stroke", "black");
+                legend.append("text")
+                        .attr("x", left_padding + legend_label_right_padding)
+                        .attr("y", function(d, i){ return legend_height*2+i*legend_height-legend_label_top_padding;})
+                        .text(function(d, i){ return legend_label[i].label; });
             })
+
+
         });
     });
 
