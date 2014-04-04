@@ -3,31 +3,7 @@
 <head>
     <title>访问者地域</title>
     <meta charset="utf-8">
-    <style type="text/css">
-        #tooltip {
-            position: absolute;
-            /*width: 150px;*/
-            height: auto;
-            padding: 10px;
-            background-color: white;
-            -webkit-border-radius: 10px;
-            -moz-border-radius: 10px;
-            border-radius: 10px;
-            -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-            -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-            pointer-events: none;
-        }
-        #tooltip.hidden {
-            display: none;
-        }
-        #tooltip p {
-            margin: 0;
-            font-family: sans-serif;
-            font-size: 15px;
-            line-height: 20px;
-        }
-    </style>
+    <link href="css/blog_analytics.css" media="all" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <div class="plot_container"></div>
@@ -41,7 +17,12 @@
 <script src="js/colorbrewer.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
-        var visits_by_day;
+        var width =  960;
+        var height = 500;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
         d3.csv("data/2013_visit_geo_by_area.csv",function(error,data){
             if(error)
             {
@@ -53,17 +34,9 @@
                     .range(colorbrewer.YlGn['9']);
 
             color.domain([
-                d3.min(data, function(d) { return d.value; }),
-                d3.max(data, function(d) { return d.value; })
+                d3.min(data, function(d) { return parseInt(d.value); }),
+                d3.max(data, function(d) { return parseInt(d.value); })
             ]);
-
-
-            var width =  960;
-            var height = 500;
-
-            var svg = d3.select(".plot_container").append("svg")
-                    .attr("width", width)
-                    .attr("height", height);
 
             var projection = d3.geo.mercator()
                     .translate([width/2,height/2])
