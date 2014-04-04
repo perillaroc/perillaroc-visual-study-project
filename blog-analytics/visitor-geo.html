@@ -10,43 +10,86 @@
 <script src="js/jquery-2.1.0.js" charset="utf-8"></script>
 <script src="js/d3.js" charset="utf-8"></script>
 <script src="js/topojson.js"></script>
+<script src="js/colorbrewer.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
-        var width =  960;
-        var height = 500;
+        var visits_by_day;
+        d3.csv("data/2013_visit_geo_by_area.csv",function(error,data){
+            if(error)
+            {
+                console.log("Load csv file filed!");
+                return;
+            }
 
-        var svg = d3.select(".plot_container").append("svg")
-                .attr("width", width)
-                .attr("height", height);
+            var color = d3.scale.quantize()
+                    .range(colorbrewer.YlGn['9']);
 
-        var projection = d3.geo.mercator()
-                .translate([width/2,height/2])
-                .center([105, 38])
-                .scale([500]);
+            color.domain([
+                d3.min(data, function(d) { return d.value; }),
+                d3.max(data, function(d) { return d.value; })
+            ]);
 
-        var path = d3.geo.path()
-                .projection(projection);
 
-        d3.json("data/china.topo.json", function(error, d) {
-            var states = topojson.feature(d, d.objects.states);
-            svg.append("path")
-                    .datum(states)
-                    .attr("d", path);
-            svg.selectAll("path")
-                    .style("stroke-width", "1")
-                    .style("stroke", "white");
+            var width =  960;
+            var height = 500;
 
-            svg.selectAll(".states")
-                    .data(topojson.feature(d, d.objects.states).features)
-                    .enter().append("path")
-                    .attr("date-name", function(d) {
-                        if(d.id=="TWN")
-                            return d.id;
-                        else
-                            return d.properties.name;
-                    })
-                    .attr("d", path);
-        })
+            var svg = d3.select(".plot_container").append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+
+            var projection = d3.geo.mercator()
+                    .translate([width/2,height/2])
+                    .center([105, 38])
+                    .scale([500]);
+
+            var path = d3.geo.path()
+                    .projection(projection);
+
+            d3.json("data/china.topo.json", function(error, d) {
+                var states = topojson.feature(d, d.objects.states);
+
+                for(var i = 0; i < data.length; i++)
+                {
+                    var data_state = data[i].state;
+
+                    var data_value = parseInt(data[i].value);
+
+                    for(var j=0; j<states.features.length; j++)
+                    {
+                        var json_state = states.features[j].properties.name;
+                        if( data_state == json_state)
+                        {
+                            states.features[j].properties.value = data_value;
+                            break;
+                        }
+                    }
+                    if(j == states.features.length)
+                        console.log(data_state," not found!");
+                }
+
+                svg.selectAll(".states")
+                        .data(states.features)
+                        .enter().append("path")
+                        .attr("class", "states")
+                        .attr("date-name", function(d) {
+                            if(d.id=="TWN")
+                                return d.id;
+                            else
+                                return d.properties.name;
+                        })
+                        .attr("d", path)
+                        .style("fill", function(d){
+                            var value = d.properties.value;
+                            if(value){
+                                return color(value);
+                            }else{
+                                return "#ccc";
+                            }
+                        })
+                        .style("stroke-width", "1")
+                        .style("stroke", "black");
+            })
+        });
     });
 
 </script>
