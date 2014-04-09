@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Start Page</title>
+    <meta charset="utf-8">
+    <link href="../public/css/blog_analytics.css" media="all" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .legend {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="plot_container"></div>
+    <div id="tooltip" class="hidden">
+        <p><span id="city"></span>：<span id="value">100</span></p>
+    </div>
+</body>
+<script src="../public/js/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="../public/js/d3.js" charset="utf-8"></script>
+<script src="../public/js/topojson.js"></script>
+<script src="../public/js/colorbrewer.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var width =  960;
+        var height = 500;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+        // load csv data for local file.
+        d3.csv("../public/data/2013_visit_geo_by_area.csv",function(error,csv_data){
+            if(error)
+            {
+                console.log("Load csv file filed!");
+                return;
+            }
+            var url = 'http://nominatim.openstreetmap.org/search';
+            for(var i=0; i<csv_data.length;i++){
+                var state_name = csv_data[i].state;
+                var param = {
+                    format: "json",
+                    limit: 1,
+                    state: state_name
+                };
+                var current_url = url+'?'+ $.param(param);
+
+                $.get(current_url,function(data){
+                    console.log(data);
+                }).fail(function(){
+                    console.log("error");
+                })
+            }
+
+        });
+    });
+
+</script>
+</html>
