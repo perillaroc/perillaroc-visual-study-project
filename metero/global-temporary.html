@@ -37,20 +37,22 @@
                         .style("fill","transparent")
                         .style("stroke", "black");
 
+//                var lon_start = 0;
+//                var lon_end = 359;
+//                var lat_start = -89;
+//                var lat_end = 89;
+//
 
-                var lon_start = 0;
-                var lon_end = 359;
-                var lat_start = -89;
-                var lat_end = 89;
-
-                for(var cur_lat=lat_start;cur_lat<=lat_end;cur_lat++)
+                for(var cur_x=0;cur_x<width;cur_x++)
                 {
-                    for(var cur_lon=lon_start; cur_lon<=lon_end; cur_lon++)
+                    for(var cur_y=0;cur_y<height;cur_y++)
                     {
-                        var point=projection([cur_lon, cur_lat]);
-                        if(cur_lon%100==0 && cur_lat%10==0)
+                        var latlon = projection.invert([cur_x,cur_y]);
+                        if(cur_x%50==0 && cur_y%50==0)
                         {
-                            console.log(cur_lon,cur_lat,point);
+                            latlon[0] = Math.round(latlon[0]);
+                            latlon[1] = Math.round(latlon[1]);
+                            console.log(cur_x,cur_y,latlon);
                         }
                     }
                 }
