@@ -49,21 +49,53 @@
 //                var lat_end = 89;
 //
                 d3.json("data/temporary.json",function(error,d){
-                    var t_data = d[0].data;
+                    var data = d[0].data;
+                    var la1 = d[0].header.la1;
+                    var la2 = d[0].header.la2;
+                    var lo1 = d[0].header.lo1;
+                    var lo2 = d[0].header.lo2;
+                    var nx = d[0].header.nx;
+                    var ny = d[0].header.ny;
+
                     console.log(d);
+
+                    var points=[];
                     for(var cur_x=0;cur_x<width;cur_x++)
                     {
                         for(var cur_y=0;cur_y<height;cur_y++)
                         {
                             var latlon = projection.invert([cur_x,cur_y]);
-                            latlon[0] = Math.round(latlon[0]);
-                            latlon[1] = Math.round(latlon[1]);
-                            if(cur_x%50==0 && cur_y%50==0)
-                            {
-                                console.log(cur_x,cur_y,latlon);
+                            latlon[0] = Math.round(latlon[0])+180;
+                            latlon[1] = Math.round(latlon[1])+90;
+
+                            if(latlon[0]<0 || latlon[0]>359 || latlon[1]<0 || latlon[1] > 179){
+
+                            }else{
+                                var index = latlon[1] * nx + latlon[0];
+                                var item ={
+                                    type: "Point",
+                                    coordinates: [latlon[0]-180,latlon[1]-90]
+                                };
+
+//                                latlon.push(data[index]);
+                                points.push(item);
                             }
                         }
+
                     }
+                    console.log(points);
+
+                    var points_small = points.slice(24000,25000);
+
+                    svg.selectAll(".t")
+                        .data(points_small)
+                        .enter().append("path")
+                        .attr("class", "t")
+                        .attr("d", path)
+                        .style("stroke-width", "1")
+                        .style("fill","red")
+                        .style("stroke", "red");
+
                 });
 
             });
