@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>全球气温</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <div class="plot_container"></div>
+</body>
+<script src="../public/js/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="../public/js/d3.js" charset="utf-8"></script>
+<script src="../public/js/topojson.js"></script>
+<script src="../public/js/colorbrewer.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var width =  960;
+        var height = 500;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            var projection = d3.geo.mercator()
+//                    .translate([width/2,height/2])
+//                    .center([105, 38]);
+
+            var path = d3.geo.path()
+                    .projection(projection);
+
+            // load map topojson
+            d3.json("data/earth-topo.json", function(error, d) {
+                var coastline_110m = topojson.feature(d, d.objects.coastline_50m);
+                svg.selectAll(".coastline_50m")
+                        .data(coastline_110m.features)
+                        .enter().append("path")
+                        .attr("class", "coastline")
+                        .attr("d", path)
+                        .style("stroke-width", "1")
+                        .style("fill","transparent")
+                        .style("stroke", "black");
+
+
+                var lon_start = 0;
+                var lon_end = 359;
+                var lat_start = -89;
+                var lat_end = 89;
+
+                for(var cur_lat=lat_start;cur_lat<=lat_end;cur_lat++)
+                {
+                    for(var cur_lon=lon_start; cur_lon<=lon_end; cur_lon++)
+                    {
+                        var point=projection([cur_lon, cur_lat]);
+                        if(cur_lon%100==0 && cur_lat%10==0)
+                        {
+                            console.log(cur_lon,cur_lat,point);
+                        }
+                    }
+                }
+            });
+    });
+
+</script>
+</html>
