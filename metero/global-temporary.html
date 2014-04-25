@@ -13,8 +13,8 @@
 <script src="../public/js/colorbrewer.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
-        var width =  960;
-        var height = 500;
+        var width =  1000;
+        var height = 800;
 
         var svg = d3.select(".plot_container").append("svg")
                 .attr("width", width)
@@ -42,20 +42,24 @@
 //                var lat_start = -89;
 //                var lat_end = 89;
 //
-
-                for(var cur_x=0;cur_x<width;cur_x++)
-                {
-                    for(var cur_y=0;cur_y<height;cur_y++)
+                d3.json("data/temporary.json",function(error,d){
+                    var t_data = d[0].data;
+                    console.log(d);
+                    for(var cur_x=0;cur_x<width;cur_x++)
                     {
-                        var latlon = projection.invert([cur_x,cur_y]);
-                        if(cur_x%50==0 && cur_y%50==0)
+                        for(var cur_y=0;cur_y<height;cur_y++)
                         {
+                            var latlon = projection.invert([cur_x,cur_y]);
                             latlon[0] = Math.round(latlon[0]);
                             latlon[1] = Math.round(latlon[1]);
-                            console.log(cur_x,cur_y,latlon);
+                            if(cur_x%50==0 && cur_y%50==0)
+                            {
+                                console.log(cur_x,cur_y,latlon);
+                            }
                         }
                     }
-                }
+                });
+
             });
     });
 
