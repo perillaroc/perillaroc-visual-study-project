@@ -20,6 +20,12 @@
 
 	grib2json --names --data -o 60.t.json 60.out.t.grb2
 
+##　填充
+
+### 填充颜色
+
+使用D3.js填充颜色，利用`d3.interpolateHcl`等函数插值颜色。
+
 
 ## 参考：earth at nullschool
 

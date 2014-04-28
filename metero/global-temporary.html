@@ -62,6 +62,11 @@
                 var maxvalue = Math.max.apply( Math, data );
                 var minvalue = Math.min.apply( Math, data );
 
+                var color_scale = d3.scale.linear()
+                        .domain([minvalue,maxvalue])
+                        .interpolate(d3.interpolateHsl)
+                        .range(["hsl(250,100%,50%)", "hsl(180,100%,50%)"]);
+
                 var points=[];
                 for(var cur_x=0;cur_x<width;cur_x++)
                 {
@@ -107,14 +112,13 @@
                     var y = cur_point.point[1];
                     var value = cur_point.value;
 
-                    var rgba=[0,0,0,255*0.7];
-                    rgba[0] = 255.0*(value-minvalue)/(maxvalue-minvalue);
+                    var rgba= d3.rgb(color_scale(value));
 
                     var i = (y * width + x) * 4;
-                    data[i    ] = rgba[0];
-                    data[i + 1] = rgba[1];
-                    data[i + 2] = rgba[2];
-                    data[i + 3] = rgba[3];
+                    data[i    ] = rgba.r;
+                    data[i + 1] = rgba.g;
+                    data[i + 2] = rgba.b;
+                    data[i + 3] = 255*0.5;
                 }
 
                 context.putImageData(imageData, 0, 0);
