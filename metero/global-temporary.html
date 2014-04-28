@@ -5,7 +5,7 @@
     <meta charset="utf-8">
 </head>
 <body>
-    <div class="plot_container"></div>
+<div class="plot_container"></div>
 </body>
 <script src="../public/js/jquery-2.1.0.js" charset="utf-8"></script>
 <script src="../public/js/d3.js" charset="utf-8"></script>
@@ -21,84 +21,107 @@
 
 
 
-            // load map topojson
-            d3.json("data/earth-topo.json", function(error, d) {
-                var coastline_110m = topojson.feature(d, d.objects.coastline_50m);
+        // load map topojson
+        d3.json("data/earth-topo.json", function(error, d) {
+            var coastline_110m = topojson.feature(d, d.objects.coastline_50m);
 
-                var projection = d3.geo.equirectangular().scale(1).translate([0,0]).precision(0.1);
-                var path = d3.geo.path().projection(projection);
+            var projection = d3.geo.equirectangular().scale(1).translate([0,0]).precision(0.1);
+            var path = d3.geo.path().projection(projection);
 
-                var b = path.bounds(coastline_110m),
+            var b = path.bounds(coastline_110m),
                     s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
                     t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-                projection.scale(s).translate(t);
+            projection.scale(s).translate(t);
 
-                svg.selectAll(".coastline")
-                        .data(coastline_110m.features)
-                        .enter().append("path")
-                        .attr("class", "coastline")
-                        .attr("d", path)
-                        .style("stroke-width", "1")
-                        .style("fill","transparent")
-                        .style("stroke", "black");
+            svg.selectAll(".coastline")
+                    .data(coastline_110m.features)
+                    .enter().append("path")
+                    .attr("class", "coastline")
+                    .attr("d", path)
+                    .style("stroke-width", "1")
+                    .style("fill","transparent")
+                    .style("stroke", "black");
 
 //                var lon_start = 0;
 //                var lon_end = 359;
 //                var lat_start = -89;
 //                var lat_end = 89;
 //
-                d3.json("data/temporary.json",function(error,d){
-                    var data = d[0].data;
-                    var la1 = d[0].header.la1;
-                    var la2 = d[0].header.la2;
-                    var lo1 = d[0].header.lo1;
-                    var lo2 = d[0].header.lo2;
-                    var nx = d[0].header.nx;
-                    var ny = d[0].header.ny;
+            d3.json("data/temporary.json",function(error,d){
+                var data = d[0].data;
+                var la1 = d[0].header.la1;
+                var la2 = d[0].header.la2;
+                var lo1 = d[0].header.lo1;
+                var lo2 = d[0].header.lo2;
+                var nx = d[0].header.nx;
+                var ny = d[0].header.ny;
 
-                    console.log(d);
+                console.log(d);
 
-                    var points=[];
-                    for(var cur_x=0;cur_x<width;cur_x++)
+                var maxvalue = Math.max.apply( Math, data );
+                var minvalue = Math.min.apply( Math, data );
+
+                var points=[];
+                for(var cur_x=0;cur_x<width;cur_x++)
+                {
+                    for(var cur_y=0;cur_y<height;cur_y++)
                     {
-                        for(var cur_y=0;cur_y<height;cur_y++)
-                        {
-                            var latlon = projection.invert([cur_x,cur_y]);
-                            latlon[0] = Math.round(latlon[0])+180;
-                            latlon[1] = Math.round(latlon[1])+90;
+                        var latlon = projection.invert([cur_x,cur_y]);
+                        latlon[0] = Math.round(latlon[0])+180;
+                        latlon[1] = Math.round(latlon[1])+90;
 
-                            if(latlon[0]<0 || latlon[0]>359 || latlon[1]<0 || latlon[1] > 179){
+                        if(latlon[0]<0 || latlon[0]>359 || latlon[1]<0 || latlon[1] > 179){
 
-                            }else{
-                                var index = latlon[1] * nx + latlon[0];
-                                var item ={
+                        }else{
+                            var index = latlon[1] * nx + latlon[0];
+                            var item ={
+                                geo:{
                                     type: "Point",
                                     coordinates: [latlon[0]-180,latlon[1]-90]
-                                };
-
-//                                latlon.push(data[index]);
-                                points.push(item);
-                            }
+                                },
+                                point:[cur_x, cur_y],
+                                value:data[index]
+                            };
+                            points.push(item);
                         }
-
                     }
-                    console.log(points);
+                }
+                console.log(points);
 
-                    var points_small = points.slice(24000,25000);
 
-                    svg.selectAll(".t")
-                        .data(points_small)
-                        .enter().append("path")
-                        .attr("class", "t")
-                        .attr("d", path)
-                        .style("stroke-width", "1")
-                        .style("fill","red")
-                        .style("stroke", "red");
+                var canvas = d3.select(".plot_container").append("canvas")
+                            .attr("width", width)
+                            .attr("height", height).node();
+                var context = canvas.getContext("2d");
+                context.fillStyle = "rgba(255, 0, 0, 1)";
+                context.fill();
 
-                });
+                var imageData = context.getImageData(0, 0, width, height);
+                var data = imageData.data;
 
+                for(index=0;index<points.length;index++)
+                {
+                    var cur_point = points[index];
+                    var x = cur_point.point[0];
+                    var y = cur_point.point[1];
+                    var value = cur_point.value;
+
+                    var rgba=[0,0,0,255*0.7];
+                    rgba[0] = 255.0*(value-minvalue)/(maxvalue-minvalue);
+
+                    var i = (y * width + x) * 4;
+                    data[i    ] = rgba[0];
+                    data[i + 1] = rgba[1];
+                    data[i + 2] = rgba[2];
+                    data[i + 3] = rgba[3];
+                }
+
+                context.putImageData(imageData, 0, 0);
+                console.log("Done")
             });
+
+        });
     });
 
 </script>
