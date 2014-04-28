@@ -1,5 +1,26 @@
 # 全球气温
 
+## 数据处理
+
+### 抽取特定消息
+
+使用GRIB API的命令行工具grib_copy提取需要的grib2消息。
+
+	grib_copy -w count=60 gmf.639.2014042412003.grb2 60.t.grb2
+
+### 转换分辨率
+
+使用wgrib2，需在编译时打开`USE_IPOLATES`选项。详情参见[http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html](http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html "wgrib2的new_grid参数")
+
+	 wgrib2 60.t.grb2 -set_grib_type same -new_grid_winds earth -new_grid latlon 0:360:1 -90:180:1 60.out.t.grb2
+
+### 转换为json格式
+
+使用grib2json
+
+	grib2json --names --data -o 60.t.json 60.out.t.grb2
+
+
 ## 参考：earth at nullschool
 
 参考[http://earth.nullschool.net/](http://earth.nullschool.net/)网站的代码
