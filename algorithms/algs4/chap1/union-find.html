@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Union Find问题</title>
+</head>
+<body>
+<div class="plot_container">
+
+</div>
+</body>
+<script src="/public/js/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="/public/js/d3.js" charset="utf-8"></script>
+<script src="./union-find.js"></script>
+<script src="./percolation.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var width =  600;
+        var height = 600;
+        var margin = 50;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+        var row = 50;
+        var col = row;
+        var grid_count = row * col;
+        var grid = new Array(grid_count);
+        for(var i=0;i<grid.length;i++){
+            grid[i] = 0;
+        }
+        var grid_width = (width-margin*2)/col;
+        var grid_height = (height-margin*2)/row;
+
+        svg.selectAll(".grid")
+                .data(grid)
+                .enter()
+                .append("rect")
+                .attr("class","grid")
+                .attr("height",grid_height)
+                .attr("width",grid_width)
+                .attr("x",function(d,i){
+                    return (i%col)*grid_width
+                })
+                .attr("y",function(d,i){
+                    return (Math.floor(i/row))*grid_height
+                })
+                .style("fill",function(d,i){
+                    return "black"
+                })
+                .style("stroke-width", "1")
+                .style("stroke", "black");
+
+        var percolation = new Percolation(row);
+
+        var step = 0;
+        var timer;
+        function one_step(){
+            var index_i = Math.floor(Math.random()*row)+1;
+            var index_j = Math.floor(Math.random()*row)+1;
+            while(percolation.isOpen(index_i, index_j)){
+                index_i = Math.floor(Math.random()*row)+1;
+                index_j = Math.floor(Math.random()*row)+1;
+            }
+            percolation.open(index_i, index_j);
+
+            svg.selectAll(".grid")
+                    .data(grid)
+                    .style("fill",function(d,i){
+                        var index_i = Math.floor(i/col)+1;
+                        var index_j = i%row+1;
+                        if(percolation.isFull(index_i,index_j))
+                            return "green";
+                        else if(percolation.isOpen(index_i,index_j))
+                            return "white";
+                        else
+                            return "black";
+                    });
+            step=step+1;
+            if(!percolation.percolates())
+                timer = setTimeout(one_step,10);
+            else{
+                console.log(step);
+            }
+
+        }
+        one_step();
+    });
+</script>
+</html>
