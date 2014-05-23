@@ -2,6 +2,7 @@
 function Percolation(N){
     this.n = N;
     this.uf = new UnionFind(this.n*this.n+2);
+    this.uf_visual = new UnionFind(this.n*this.n+1);
     this.status = new Array(this.n*this.n);
 
     for(var i=0;i<this.status.length;i++){
@@ -21,6 +22,7 @@ function Percolation(N){
         if (i == 1)
         {
             this.uf.union(p1, this.n*this.n);
+            this.uf_visual.union(p1, this.n*this.n);
         }
 
         if (i == this.n)
@@ -32,23 +34,27 @@ function Percolation(N){
         {
             var p2 = p1-this.n;
             this.uf.union(p1, p2);
+            this.uf_visual.union(p1, p2);
         }
 
         if (i < this.n && this.isOpen(i+1, j))
         {
             var p2 = p1+this.n;
             this.uf.union(p1, p2);
+            this.uf_visual.union(p1, p2);
         }
 
         if (j > 1 && this.isOpen(i, j-1))
         {
             var p2 = p1-1;
             this.uf.union(p1, p2);
+            this.uf_visual.union(p1, p2);
         }
         if (j < this.n && this.isOpen(i, j+1))
         {
             var p2 = p1+1;
             this.uf.union(p1, p2);
+            this.uf_visual.union(p1, p2);
         }
     };
 
@@ -65,7 +71,7 @@ function Percolation(N){
         if(!this.isOpen(i,j))
             return false;
         var index = (i-1)*this.n+j-1;
-        return this.uf.connected(index, this.n*this.n);
+        return this.uf_visual.connected(index, this.n*this.n);
     };
 
     this.percolates = function(){
