@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>选择排序</title>
+</head>
+<body>
+<div class="plot_container">
+
+</div>
+</body>
+<script src="/public/js/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="/public/js/d3.js" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var width =  600;
+        var height = 600;
+        var margin = 50;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+        var total_of_nums = 20;
+        var num_array = [];
+        for(var i=1;i<=total_of_nums;i++)
+        {
+            num_array.push(i);
+        }
+        d3.shuffle(num_array);
+
+        svg.selectAll(".bar")
+                .data(num_array)
+                .enter()
+                .append("rect")
+                .attr({
+                    x:function(d,i){
+                        return i*10;
+                    },
+                    y:0,
+                    width:5,
+                    height:function(d,i){
+                        return d*10;
+                    },
+                    fill:"blue"
+                })
+
+
+
+
+    });
+</script>
+</html>

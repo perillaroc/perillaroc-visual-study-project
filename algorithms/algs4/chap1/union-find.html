@@ -22,7 +22,7 @@
                 .attr("width", width)
                 .attr("height", height);
 
-        var row = 50;
+        var row = 20;
         var col = row;
         var grid_count = row * col;
         var grid = new Array(grid_count);
@@ -78,7 +78,7 @@
                     });
             step=step+1;
             if(!percolation.percolates())
-                timer = setTimeout(one_step,10);
+                timer = setTimeout(one_step,1);
             else{
                 console.log(step);
             }
