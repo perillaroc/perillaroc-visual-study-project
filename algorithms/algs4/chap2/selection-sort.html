@@ -30,9 +30,10 @@
             num_array.push(i);
         }
         d3.shuffle(num_array);
+        var num_array_orig = num_array.concat();
 
-        svg.selectAll(".bar")
-                .data(num_array)
+        var bars = svg.selectAll(".bar")
+                .data(num_array_orig)
                 .enter()
                 .append("rect")
                 .attr({
@@ -46,50 +47,75 @@
                     height:function(d,i){
                         return d*bar_height_step;
                     },
-                    fill:"blue",
+                    fill:"gray",
                     class:"bar"
                 });
 
 
-        var i = 0;
-        var timer;
-        one_step();
-        function one_step(){
+        var actions=[];
+
+        for(var i=0;i<num_array.length;i++){
             var num = num_array[i];
             var pos = i;
+            actions.push({
+                type:"move",
+                pos:i
+            })
             for(var j=i+1;j<num_array.length;j++)
             {
                 if(num_array[j]<num_array[pos])
                     pos = j;
+                actions.push({
+                    type:"move",
+                    pos:i
+                })
             }
 
             // TODO: swap
             var temp = num_array[pos];
             num_array[pos] = num_array[i];
             num_array[i] = temp;
+            actions.push({
+                type:"swap",
+                i:i,
+                j:pos
+            })
+        }
 
-            svg.selectAll(".bar")
-                .data(num_array)
+
+        actions = actions.reverse();
+        var timer;
+        update();
+        function update(){
+            var cur_action = actions.pop();
+
+            if(cur_action.type=="swap"){
+                var temp = num_array_orig[cur_action.i];
+                num_array_orig[cur_action.i] = num_array_orig[cur_action.j];
+                num_array_orig[cur_action.j] = temp;
+
+                svg.selectAll(".bar")
+                .data(num_array_orig)
                 .attr({
                     y:function(d,i){
                         return (total_of_nums-d)*bar_height_step;
                     },
+                    width:bar_width,
                     height:function(d,i){
                         return d*bar_height_step;
                     },
                     fill:function(d,index){
-                        if(index<=i)
-                            return "green";
-                        else
-                            return "gray";
+                        return "gray";
                     }
                 });
+            }
+            else if(cur_action.type=="move"){
 
-            i++;
-            if(i<num_array.length)
-                timer = setTimeout(one_step,500);
+            }
+            if(actions.length>0)
+                timer = setTimeout(update, 5);
+
         }
-
-    });
+});
 </script>
 </html>
