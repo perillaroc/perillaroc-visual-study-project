@@ -71,23 +71,17 @@
             svg.selectAll(".bar")
                 .data(num_array)
                 .attr({
-                    x:function(d,i){
-                        return i*bar_width_step;
-                    },
                     y:function(d,i){
                         return (total_of_nums-d)*bar_height_step;
                     },
-                    width:bar_width,
                     height:function(d,i){
                         return d*bar_height_step;
                     },
                     fill:function(d,index){
-                        if(index==i)
-                            return "red";
-                        else if(index == pos)
+                        if(index<=i)
                             return "green";
                         else
-                            return "blue";
+                            return "gray";
                     }
                 });
 
@@ -95,8 +89,6 @@
             if(i<num_array.length)
                 timer = setTimeout(one_step,500);
         }
-
-
 
     });
 </script>
