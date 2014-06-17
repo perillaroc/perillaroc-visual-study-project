@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>插入排序</title>
+</head>
+<body>
+<div class="plot_container">
+
+</div>
+</body>
+<script src="/public/js/jquery-2.1.0.js" charset="utf-8"></script>
+<script src="/public/js/d3.js" charset="utf-8"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var width =  600;
+        var height = 600;
+        var margin = 50;
+        var bar_width = 15;
+        var bar_width_step = 20;
+        var bar_height_step = 15;
+
+        var svg = d3.select(".plot_container").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+        // array data
+        var total_of_nums = 30;
+        var num_array = [];
+        for(var i=1;i<=total_of_nums;i++)
+        {
+            num_array.push(i);
+        }
+        d3.shuffle(num_array);
+        var num_array_orig = num_array.concat();
+
+        var bar_height = total_of_nums*bar_height_step;
+
+        // flag
+        var circle_data = [{
+            cx:bar_width/2,
+            cy:bar_height+10,
+            r:bar_width/2
+        }];
+
+        var bars = svg.selectAll(".bar")
+                .data(num_array_orig)
+                .enter()
+                .append("rect")
+                .attr({
+                    x:function(d,i){
+                        return i*bar_width_step;
+                    },
+                    y:function(d,i){
+                        return (total_of_nums-d)*bar_height_step;
+                    },
+                    width:bar_width,
+                    height:function(d,i){
+                        return d*bar_height_step;
+                    },
+                    fill:"gray",
+                    class:"bar"
+                });
+
+        var flag = svg.selectAll(".flag")
+                .data(circle_data)
+                .enter()
+                .append("circle")
+                .attr({
+                    cx:function(d,i){
+                        return d.cx;
+                    },
+                    cy:function(d,i){
+                        return d.cy;
+                    },
+                    r:function(d,i){
+                        return d.r;
+                    },
+                    fill:"black",
+                    class:"flag"
+                });
+
+
+        /* insertion sort */
+        var actions=[];
+        for(var i=0;i<num_array.length;i++){
+            actions.push({
+                type:"move",
+                pos:i
+            });
+            for(var j=i;j>0;j--)
+            {
+                actions.push({
+                    type:"move",
+                    pos:j
+                });
+                if(num_array[j]<num_array[j-1])
+                {
+                    // TODO: swap
+                    var temp = num_array[j];
+                    num_array[j] = num_array[j-1];
+                    num_array[j-1] = temp;
+                    actions.push({
+                        type:"swap",
+                        i:j,
+                        j:j-1
+                    })
+                }
+                else
+                    break;
+            }
+        }
+
+
+        /**
+         *  排序中的两项基本操作：
+         *      比较
+         *      交换
+         *  再加上光标位置移动
+         */
+
+        actions = actions.reverse();
+        var timer;
+        update();
+        function update(){
+            var cur_action = actions.pop();
+
+            if(cur_action.type=="swap"){
+                var temp = num_array_orig[cur_action.i];
+                num_array_orig[cur_action.i] = num_array_orig[cur_action.j];
+                num_array_orig[cur_action.j] = temp;
+
+                svg.selectAll(".bar")
+                .data(num_array_orig)
+                .attr({
+                    y:function(d,i){
+                        return (total_of_nums-d)*bar_height_step;
+                    },
+                    width:bar_width,
+                    height:function(d,i){
+                        return d*bar_height_step;
+                    },
+                    fill:function(d,index){
+                        return "gray";
+                    }
+                });
+            }
+            else if(cur_action.type=="move"){
+                circle_data[0].cx = cur_action.pos*bar_width_step + bar_width/2;
+                   svg.selectAll(".flag")
+                        .data(circle_data)
+                        .attr({
+                            cx:function(d,i){
+                                console.log(d.cx);
+                                return d.cx;
+                            }
+                        })
+
+            }
+            if(actions.length>0)
+                timer = setTimeout(update, 30);
+
+        }
+});
+</script>
+</html>
