@@ -23,7 +23,8 @@
                 .attr("width", width)
                 .attr("height", height);
 
-        var total_of_nums = 20;
+        // array data
+        var total_of_nums = 30;
         var num_array = [];
         for(var i=1;i<=total_of_nums;i++)
         {
@@ -31,6 +32,15 @@
         }
         d3.shuffle(num_array);
         var num_array_orig = num_array.concat();
+
+        var bar_height = total_of_nums*bar_height_step;
+
+        // flag
+        var circle_data = [{
+            cx:bar_width/2,
+            cy:bar_height+10,
+            r:bar_width/2
+        }];
 
         var bars = svg.selectAll(".bar")
                 .data(num_array_orig)
@@ -51,23 +61,41 @@
                     class:"bar"
                 });
 
+        var flag = svg.selectAll(".flag")
+                .data(circle_data)
+                .enter()
+                .append("circle")
+                .attr({
+                    cx:function(d,i){
+                        return d.cx;
+                    },
+                    cy:function(d,i){
+                        return d.cy;
+                    },
+                    r:function(d,i){
+                        return d.r;
+                    },
+                    fill:"black",
+                    class:"flag"
+                });
 
+
+        /* selection sort */
         var actions=[];
-
         for(var i=0;i<num_array.length;i++){
             var num = num_array[i];
             var pos = i;
             actions.push({
                 type:"move",
                 pos:i
-            })
+            });
             for(var j=i+1;j<num_array.length;j++)
             {
                 if(num_array[j]<num_array[pos])
                     pos = j;
                 actions.push({
                     type:"move",
-                    pos:i
+                    pos:j
                 })
             }
 
@@ -82,6 +110,13 @@
             })
         }
 
+
+        /**
+         *  排序中的两项基本操作：
+         *      比较
+         *      交换
+         *  再加上光标位置移动
+         */
 
         actions = actions.reverse();
         var timer;
@@ -110,10 +145,19 @@
                 });
             }
             else if(cur_action.type=="move"){
+                circle_data[0].cx = cur_action.pos*bar_width_step + bar_width/2;
+                   svg.selectAll(".flag")
+                        .data(circle_data)
+                        .attr({
+                            cx:function(d,i){
+                                console.log(d.cx);
+                                return d.cx;
+                            }
+                        })
 
             }
             if(actions.length>0)
-                timer = setTimeout(update, 5);
+                timer = setTimeout(update, 25);
 
         }
 });
